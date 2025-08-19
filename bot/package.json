@@ -1,0 +1,36 @@
+{
+  "name": "whatsapp-expense-bot",
+  "version": "1.0.0",
+  "description": "Bot do WhatsApp para controle de gastos pessoais com categorias inteligentes",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js",
+    "test": "node test.js",
+    "test-users": "node test-users.js",
+    "test-complete": "node test-complete.js",
+    "setup": "npm install && echo '✅ Dependências instaladas! Execute: npm start'"
+  },
+  "keywords": ["whatsapp", "bot", "expenses", "finance", "tracker", "categorias", "gastos"],
+  "author": "WhatsApp Expense Tracker Pro",
+  "license": "MIT",
+  "dependencies": {
+    "@whiskeysockets/baileys": "^6.6.0",
+    "sqlite3": "^5.1.6",
+    "qrcode-terminal": "^0.12.0",
+    "moment": "^2.29.4",
+    "@hapi/boom": "^10.0.1",
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "chart.js": "^4.4.0",
+    "chartjs-node-canvas": "^4.1.6",
+    "pdfkit": "^0.14.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
