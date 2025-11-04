@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { MessageCircle, BarChart3, DollarSign, TrendingUp, Users, Shield, Check, Star, Crown, Zap, X, CreditCard, User, Calendar, AlertCircle, Download, Filter, Search, MoreVertical, Edit, Trash2, Mail, Phone, Target } from 'lucide-react';
-import { MessageCircle, BarChart3, DollarSign, TrendingUp, Users, Shield, Check, Star, Crown, Zap, X, CreditCard, User, Calendar, AlertCircle, Download, Filter, Search, MoreVertical, CreditCard as Edit, Trash2, Mail, Phone, Target } from 'lucide-react';
 
 // Initialize Supabase client
 interface Expense {
