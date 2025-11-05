@@ -12,20 +12,30 @@
     "test-complete": "node test-complete.js",
     "setup": "npm install && echo '✅ Dependências instaladas! Execute: npm start'"
   },
-  "keywords": ["whatsapp", "bot", "expenses", "finance", "tracker", "categorias", "gastos"],
+  "keywords": [
+    "whatsapp",
+    "bot",
+    "expenses",
+    "finance",
+    "tracker",
+    "categorias",
+    "gastos"
+  ],
   "author": "WhatsApp Expense Tracker Pro",
   "license": "MIT",
   "dependencies": {
-    "@whiskeysockets/baileys": "^6.6.0",
-    "sqlite3": "^5.1.6",
-    "qrcode-terminal": "^0.12.0",
-    "moment": "^2.29.4",
     "@hapi/boom": "^10.0.1",
-    "express": "^4.18.2",
-    "cors": "^2.8.5",
+    "@supabase/supabase-js": "^2.79.0",
+    "@whiskeysockets/baileys": "^6.6.0",
     "chart.js": "^4.4.0",
     "chartjs-node-canvas": "^4.1.6",
-    "pdfkit": "^0.14.0"
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "express": "^4.18.2",
+    "moment": "^2.29.4",
+    "pdfkit": "^0.14.0",
+    "qrcode-terminal": "^0.12.0",
+    "sqlite3": "^5.1.6"
   },
   "devDependencies": {
     "nodemon": "^3.0.2"
