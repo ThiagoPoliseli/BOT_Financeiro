@@ -15,6 +15,7 @@ import {
   Mail,
   Phone,
 } from "lucide-react";
+import { supabase } from "../lib/supabase";
 
 interface User {
   id: string;
@@ -28,6 +29,7 @@ interface User {
   totalExpenses: number;
   monthlySpent: number;
   revenue: number;
+  full_name?: string;
 }
 
 interface AdminStats {
@@ -35,7 +37,7 @@ interface AdminStats {
   activeUsers: number;
   totalRevenue: number;
   monthlyRevenue: number;
-  churnRate: number;
+  churnRate: string | number;
   avgRevenuePerUser: number;
 }
 
@@ -46,96 +48,89 @@ const AdminDashboard: React.FC = () => {
     activeUsers: 0,
     totalRevenue: 0,
     monthlyRevenue: 0,
-    churnRate: 0,
+    churnRate: "0",
     avgRevenuePerUser: 0,
   });
   const [searchTerm, setSearchTerm] = useState("");
   const [filterPlan, setFilterPlan] = useState<string>("all");
   const [filterStatus, setFilterStatus] = useState<string>("all");
 
-  // Simular dados
   useEffect(() => {
-    const mockUsers: User[] = [
-      {
-        id: "1",
-        name: "João Silva",
-        email: "joao@email.com",
-        phone: "(11) 99999-9999",
-        plan: "premium",
-        status: "active",
-        createdAt: "2024-01-15",
-        lastActivity: "2024-01-20",
-        totalExpenses: 156,
-        monthlySpent: 2450.8,
-        revenue: 19.9,
-      },
-      {
-        id: "2",
-        name: "Maria Santos",
-        email: "maria@email.com",
-        phone: "(11) 88888-8888",
-        plan: "basic",
-        status: "active",
-        createdAt: "2024-01-10",
-        lastActivity: "2024-01-19",
-        totalExpenses: 89,
-        monthlySpent: 1230.5,
-        revenue: 9.9,
-      },
-      {
-        id: "3",
-        name: "Pedro Costa",
-        email: "pedro@email.com",
-        phone: "(11) 77777-7777",
-        plan: "free",
-        status: "active",
-        createdAt: "2024-01-18",
-        lastActivity: "2024-01-20",
-        totalExpenses: 23,
-        monthlySpent: 456.3,
-        revenue: 0,
-      },
-      {
-        id: "4",
-        name: "Ana Oliveira",
-        email: "ana@email.com",
-        phone: "(11) 66666-6666",
-        plan: "enterprise",
-        status: "active",
-        createdAt: "2024-01-05",
-        lastActivity: "2024-01-19",
-        totalExpenses: 234,
-        monthlySpent: 3890.45,
-        revenue: 49.9,
-      },
-      {
-        id: "5",
-        name: "Carlos Mendes",
-        email: "carlos@email.com",
-        phone: "(11) 55555-5555",
-        plan: "basic",
-        status: "inactive",
-        createdAt: "2024-01-12",
-        lastActivity: "2024-01-15",
-        totalExpenses: 45,
-        monthlySpent: 678.9,
-        revenue: 9.9,
-      },
-    ];
+    const loadData = async () => {
+      try {
+        const { data: profiles, error: profilesError } = await supabase
+          .from("user_profiles")
+          .select("*");
 
-    setUsers(mockUsers);
+        if (profilesError) throw profilesError;
 
-    const totalRevenue = mockUsers.reduce((sum, user) => sum + user.revenue, 0);
-    const activeUsers = mockUsers.filter((u) => u.status === "active").length;
+        const planPrices: Record<string, number> = {
+          free: 0,
+          basic: 9.9,
+          premium: 19.9,
+          enterprise: 49.9,
+        };
 
-    setStats({
-      totalUsers: mockUsers.length,
-      activeUsers,
-      totalRevenue,
-      monthlyRevenue: totalRevenue,
-      churnRate: 12.5,
-      avgRevenuePerUser: totalRevenue / mockUsers.length,
-    });
+        const users: User[] = [];
+
+        for (const profile of profiles || []) {
+          const { data: expenses, error: expensesError } = await supabase
+            .from("expenses")
+            .select("amount")
+            .eq("user_id", profile.id);
+
+          if (expensesError) throw expensesError;
+
+          const totalExpenses = expenses?.length || 0;
+          const monthlySpent = expenses?.reduce(
+            (sum: number, exp: any) => sum + parseFloat(exp.amount || 0),
+            0
+          ) || 0;
+
+          const isActive = profile.plan_expires_at
+            ? new Date(profile.plan_expires_at) > new Date()
+            : profile.plan === "free";
+
+          users.push({
+            id: profile.id,
+            name: profile.full_name || profile.email.split("@")[0],
+            email: profile.email,
+            phone: profile.phone || "(--) -----",
+            plan: profile.plan || "free",
+            status: isActive ? "active" : "inactive",
+            createdAt: new Date(profile.created_at).toISOString().split("T")[0],
+            lastActivity: new Date(profile.updated_at).toISOString().split("T")[0],
+            totalExpenses,
+            monthlySpent,
+            revenue: planPrices[profile.plan] || 0,
+          });
+        }
+
+        setUsers(users);
+
+        const totalRevenue = users.reduce((sum, user) => sum + user.revenue, 0);
+        const activeUsers = users.filter((u) => u.status === "active").length;
+
+        setStats({
+          totalUsers: users.length,
+          activeUsers,
+          totalRevenue,
+          monthlyRevenue: totalRevenue,
+          churnRate: users.length > 0
+            ? ((users.filter((u) => u.status === "inactive").length /
+              users.length) *
+            100).toFixed(1)
+            : "0",
+          avgRevenuePerUser:
+            users.length > 0 ? totalRevenue / users.length : 0,
+        });
+      } catch (error) {
+        console.error("Erro ao carregar dados:", error);
+        setUsers([]);
+      }
+    };
+
+    loadData();
   }, []);
 
   const filteredUsers = users.filter((user) => {
