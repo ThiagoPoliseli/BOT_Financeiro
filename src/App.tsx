@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Wallet, TrendingUp, Shield, Zap, Menu, X, LogIn, LogOut, User } from 'lucide-react';
+import { Wallet, TrendingUp, Shield, Zap, Menu, X, LogIn, LogOut } from 'lucide-react';
 import PricingSection from './components/PricingSection';
-import AdminDashboard from './components/AdminDashboard';
 import PaymentModal from './components/PaymentModal';
 import AuthModal from './components/AuthModal';
 import { supabase } from './lib/supabase';
@@ -10,10 +9,10 @@ import type { User as SupabaseUser } from '@supabase/supabase-js';
 function App() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
+  const [selectedPeriod, setSelectedPeriod] = useState<'monthly' | 'annual'>('monthly');
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [user, setUser] = useState<SupabaseUser | null>(null);
   const [loading, setLoading] = useState(true);
-  const [showAdminDashboard, setShowAdminDashboard] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
 
   useEffect(() => {
@@ -31,52 +30,27 @@ function App() {
     return () => subscription?.unsubscribe();
   }, []);
 
-  const handleSelectPlan = (planId: string) => {
-    if (!user && planId !== 'free') {
+  const handleSelectPlan = (planId: string, period: 'monthly' | 'annual') => {
+    if (!user) {
       setShowAuthModal(true);
+      setSelectedPlan(planId);
+      setSelectedPeriod(period);
       return;
     }
 
     setSelectedPlan(planId);
-    if (planId !== 'free') {
-      setShowPaymentModal(true);
-    } else {
-      alert('Plano gratuito ativado! Conecte seu WhatsApp para começar.');
-    }
+    setSelectedPeriod(period);
+    setShowPaymentModal(true);
   };
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
-    setShowAdminDashboard(false);
   };
 
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
-      </div>
-    );
-  }
-
-  if (showAdminDashboard) {
-    return (
-      <div className="min-h-screen bg-gray-50">
-        <nav className="bg-white shadow-sm">
-          <div className="max-w-7xl mx-auto px-6 py-4">
-            <div className="flex justify-between items-center">
-              <h1 className="text-2xl font-bold text-gray-900">Painel Administrativo</h1>
-              <button
-                onClick={() => setShowAdminDashboard(false)}
-                className="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
-              >
-                Voltar ao Site
-              </button>
-            </div>
-          </div>
-        </nav>
-        <div className="max-w-7xl mx-auto px-6 py-8">
-          <AdminDashboard />
-        </div>
       </div>
     );
   }
@@ -89,7 +63,7 @@ function App() {
           <div className="flex justify-between items-center">
             <div className="flex items-center space-x-2">
               <Wallet className="h-8 w-8 text-blue-600" />
-              <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-blue-700 bg-clip-text text-transparent">
                 ExpenseBot
               </span>
             </div>
@@ -102,19 +76,12 @@ function App() {
               <a href="#pricing" className="text-gray-700 hover:text-blue-600 transition-colors font-medium">
                 Planos
               </a>
-              <a href="#about" className="text-gray-700 hover:text-blue-600 transition-colors font-medium">
-                Sobre
-              </a>
 
               {user ? (
                 <div className="flex items-center space-x-4">
-                  <button
-                    onClick={() => setShowAdminDashboard(true)}
-                    className="flex items-center space-x-2 text-gray-700 hover:text-blue-600 transition-colors"
-                  >
-                    <User className="h-5 w-5" />
-                    <span className="text-sm">{user.email?.split('@')[0]}</span>
-                  </button>
+                  <span className="text-sm text-gray-700">
+                    Olá, {user.email?.split('@')[0]}
+                  </span>
                   <button
                     onClick={handleSignOut}
                     className="flex items-center space-x-2 px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors"
@@ -134,7 +101,7 @@ function App() {
                   </button>
                   <button
                     onClick={() => setShowAuthModal(true)}
-                    className="px-6 py-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-lg font-medium transition-all"
+                    className="px-6 py-2 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-lg font-medium transition-all"
                   >
                     Criar Conta
                   </button>
@@ -160,24 +127,13 @@ function App() {
               <a href="#pricing" className="block text-gray-700 hover:text-blue-600 transition-colors">
                 Planos
               </a>
-              <a href="#about" className="block text-gray-700 hover:text-blue-600 transition-colors">
-                Sobre
-              </a>
               {user ? (
-                <>
-                  <button
-                    onClick={() => setShowAdminDashboard(true)}
-                    className="block w-full text-left text-gray-700 hover:text-blue-600 transition-colors"
-                  >
-                    Meu Painel
-                  </button>
-                  <button
-                    onClick={handleSignOut}
-                    className="block w-full text-left text-red-600 hover:text-red-700 transition-colors"
-                  >
-                    Sair
-                  </button>
-                </>
+                <button
+                  onClick={handleSignOut}
+                  className="block w-full text-left text-red-600 hover:text-red-700 transition-colors"
+                >
+                  Sair
+                </button>
               ) : (
                 <>
                   <button
@@ -412,7 +368,7 @@ function App() {
         onClose={() => setShowAuthModal(false)}
         onSuccess={() => {
           setShowAuthModal(false);
-          if (selectedPlan && selectedPlan !== 'free') {
+          if (selectedPlan) {
             setShowPaymentModal(true);
           }
         }}
@@ -421,6 +377,7 @@ function App() {
       {showPaymentModal && selectedPlan && (
         <PaymentModal
           planId={selectedPlan}
+          period={selectedPeriod}
           onClose={() => {
             setShowPaymentModal(false);
             setSelectedPlan(null);
