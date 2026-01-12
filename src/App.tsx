@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Wallet, TrendingUp, Shield, Zap, Menu, X, LogIn, LogOut } from 'lucide-react';
+import { Wallet, TrendingUp, Shield, Zap, Menu, X, LogIn, LogOut, Users } from 'lucide-react';
 import PricingSection from './components/PricingSection';
 import PaymentModal from './components/PaymentModal';
 import AuthModal from './components/AuthModal';
@@ -267,7 +267,7 @@ function App() {
                 color: 'from-purple-400 to-pink-500'
               },
               {
-                icon: <User className="h-8 w-8" />,
+                icon: <Users className="h-8 w-8" />,
                 title: 'Multi-Usuário',
                 description: 'Planos empresariais com suporte para múltiplos usuários e dashboards compartilhados.',
                 color: 'from-red-400 to-rose-500'
