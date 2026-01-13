@@ -3,6 +3,7 @@ import { Wallet, TrendingUp, Shield, Zap, Menu, X, LogIn, LogOut, Users } from '
 import PricingSection from './components/PricingSection';
 import PaymentModal from './components/PaymentModal';
 import AuthModal from './components/AuthModal';
+import Dashboard from './components/Dashboard';
 import { supabase } from './lib/supabase';
 import type { User as SupabaseUser } from '@supabase/supabase-js';
 
@@ -53,6 +54,10 @@ function App() {
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
       </div>
     );
+  }
+
+  if (user) {
+    return <Dashboard user={user} onLogout={handleSignOut} />;
   }
 
   return (
